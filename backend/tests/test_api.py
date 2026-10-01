@@ -31,3 +31,14 @@ def test_behavior_engine_triggers_incident():
     # We should have at least one incident created for 10.0.0.99
     found = any(inc["endpoint"] == "10.0.0.99" for inc in data)
     assert found
+
+def test_get_incidents_cors():
+    response = client.options(
+        "/incidents",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "GET"
+        }
+    )
+    assert response.status_code == 200
+    assert response.headers.get("access-control-allow-origin") in ["*", "http://localhost:5173"]
