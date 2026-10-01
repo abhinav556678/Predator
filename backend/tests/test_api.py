@@ -56,3 +56,7 @@ def test_deception_access_escalation():
     assert incident is not None
     assert incident["risk_level"] == "CRITICAL"
     assert incident["stage"] == "IMPACT"
+
+def test_websocket_connection():
+    with client.websocket_connect("/ws/incidents") as websocket:
+        pass

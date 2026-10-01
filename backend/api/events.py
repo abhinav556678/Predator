@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 import json
 from .. import models, database
 from ..behavior.behavior_engine import process_event
+from ..websocket_manager import manager
 
 router = APIRouter()
 
@@ -22,5 +23,9 @@ async def create_event(request: Request, db: Session = Depends(database.get_db))
     
     if payload:
         process_event(db, db_event)
+        
+    # Optional: broad cast generic telemetry update?
+    # Actually, we can just leave it as process_event, and broadcast should happen inside behavior_engine, 
+    # but for now let's just make it compilable.
     
     return {"status": "ok", "message": "Event received"}

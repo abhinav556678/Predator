@@ -4,9 +4,9 @@
 
 **Blocked by:** 06 — Dashboard Mock Integration, 10 — ML Dummy Integration & Stage Prediction Logic
 
-**Status:** ready-for-agent
+**Status:** completed
 
-- [ ] Implement WebSocket connection in React to M3's backend (or set up rapid polling if WS is too complex).
-- [ ] Connect the "Risk Score" and "Prediction Panel" UI components to the live data stream.
-- [ ] Ensure the Incident Timeline auto-scrolls or updates smoothly as new events arrive.
-- [ ] **Connectivity Check:** With the dashboard open on M1, M2 manually fires a high-risk event to M3. M1's dashboard immediately flashes Critical without refreshing.
+- [x] Implement WebSocket connection in React to M3's backend (or set up rapid polling if WS is too complex).
+- [x] Connect the "Risk Score" and "Prediction Panel" UI components to the live data stream.
+- [x] Ensure the Incident Timeline auto-scrolls or updates smoothly as new events arrive.
+- [x] **Connectivity Check:** With the dashboard open on M1, M2 manually fires a high-risk event to M3. M1's dashboard immediately flashes Critical without refreshing.
