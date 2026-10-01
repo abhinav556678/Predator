@@ -1,0 +1,7 @@
+TransactionID,Account,Department,Vendor,AmountUSD,Status,Approver,Notes
+TX-8801,ACCT-90812-US,IT,Nordic Cloud Hosting Ltd,145200.00,APPROVED,john.doe@apexfinancial.local,Primary Kubernetes Cluster Infrastructure
+TX-8802,ACCT-90812-US,Treasury,Global Swift Clearing AG,894500.50,APPROVED,john.doe@apexfinancial.local,Interbank Settlement Tier-1
+TX-8803,ACCT-44102-CH,Offshore,Helvetia Vault Management,350000.00,PENDING,john.doe@apexfinancial.local,Zurich Secure Custody Allocation
+TX-8804,ACCT-90812-US,Executive,Executive Retention Bonus Pool,620000.00,RESTRICTED,board@apexfinancial.local,CONFIDENTIAL: Board Resolution 2026-B
+TX-8805,ACCT-11928-UK,Security,Paladin Security Defense LLC,82300.00,PAID,alice.smith@apexfinancial.local,Red Team & Incident Response Retainer
+TX-8806,ACCT-90812-US,Treasury,Cayman Enterprise Holdings,1250000.00,FLAGGED_CONFIDENTIAL,cfo@apexfinancial.local,Special Purpose Entity Transfer

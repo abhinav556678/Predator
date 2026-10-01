@@ -1,0 +1,27 @@
+{
+  "system": "Apex Global Financial",
+  "generated_at": "2026-09-30T23:59:59Z",
+  "environment": "production",
+  "tokens": [
+    {
+      "service": "Stripe Gateway",
+      "key_type": "live_secret",
+      "token": "decoy_stripe_live_secret_honeytoken_apex_finance_99812401824091823"
+    },
+    {
+      "service": "GitHub Enterprise CI/CD",
+      "key_type": "personal_access_token",
+      "token": "decoy_github_pat_honeytoken_apex_prod_deployment_bot_981240981234710293"
+    },
+    {
+      "service": "SendGrid Corporate Mail",
+      "key_type": "api_key",
+      "token": "decoy_sendgrid_api_key_honeytoken_apex_corporate_mail_109283471092"
+    },
+    {
+      "service": "Internal SSO IdP",
+      "key_type": "client_secret",
+      "token": "sso_sec_9941_ApexInternalKey_DecoyToken_77610"
+    }
+  ]
+}
