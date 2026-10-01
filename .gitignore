@@ -1,0 +1,18 @@
+# Environments
+venv/
+env/
+.env
+
+# SQLite
+*.db
+*.sqlite3
+
+# Byte-compiled
+__pycache__/
+*.py[cod]
+
+# Pytest
+.pytest_cache/
+
+# VS Code
+.vscode/
