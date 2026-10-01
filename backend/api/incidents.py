@@ -14,6 +14,7 @@ def get_incidents(db: Session = Depends(database.get_db)):
             "id": inc.id,
             "timestamp": inc.timestamp.isoformat() if inc.timestamp else None,
             "stage": inc.stage,
+            "predicted_stage": inc.predicted_stage,
             "risk_level": inc.risk_level,
             "endpoint": inc.endpoint,
             "description": inc.description

@@ -15,6 +15,7 @@ class Incident(Base):
     id = Column(String, primary_key=True, index=True)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
     stage = Column(String)
+    predicted_stage = Column(String)
     risk_level = Column(String)
     endpoint = Column(String)
     description = Column(String)

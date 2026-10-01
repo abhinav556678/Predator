@@ -42,3 +42,17 @@ def test_get_incidents_cors():
     )
     assert response.status_code == 200
     assert response.headers.get("access-control-allow-origin") in ["*", "http://localhost:5173"]
+
+def test_deception_access_escalation():
+    # Send a DECEPTION_ACCESS event (immediate trigger)
+    client.post("/events", json={"source_ip": "10.0.0.99", "event_type": "DECEPTION_ACCESS"})
+    
+    # Check incidents
+    response = client.get("/incidents")
+    data = response.json()
+    
+    # Verify the incident for 10.0.0.99 is now CRITICAL
+    incident = next((inc for inc in data if inc["endpoint"] == "10.0.0.99"), None)
+    assert incident is not None
+    assert incident["risk_level"] == "CRITICAL"
+    assert incident["stage"] == "IMPACT"
