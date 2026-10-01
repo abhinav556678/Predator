@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     PREDATOR System 1 (Defender) Network Hardening Script - Windows Firewall
     Ticket 11: Network Hardening & Validation
@@ -35,16 +35,14 @@ function Apply-PredatorFirewallRules {
         Remove-NetFirewallRule -DisplayName $rule.Name -ErrorAction SilentlyContinue
 
         # Create new inbound allow rule
-        New-NetFirewallRule -DisplayName $rule.Name `
-                            -Direction Inbound `
-                            -Action Allow `
-                            -Protocol $rule.Protocol `
-                            -LocalPort $rule.Port `
-                            -Profile Any `
-                            -Description $rule.Description | Out-Null
+        New-NetFirewallRule -DisplayName $rule.Name -Direction Inbound -Action Allow -Protocol $rule.Protocol -LocalPort $rule.Port -Profile Any -Description $rule.Description | Out-Null
 
         Write-Host "    [✓] Allowed Inbound Port $($rule.Port) ($($rule.Name))" -ForegroundColor Green
     }
+
+    Remove-NetFirewallRule -DisplayName "PREDATOR-Allow-ICMP-Echo" -ErrorAction SilentlyContinue
+    New-NetFirewallRule -DisplayName "PREDATOR-Allow-ICMP-Echo" -Direction Inbound -Action Allow -Protocol ICMPv4 -IcmpType 8 -Profile Any -Description "PREDATOR Diagnostic ICMP Echo Request" | Out-Null
+    Write-Host "    [✓] Allowed Inbound ICMP Echo Request" -ForegroundColor Green
 
     Write-Host "[+] System 1 Firewall Hardening applied successfully." -ForegroundColor Green
     Write-Host "    Only ports 3000, 8000, 8080, and 9000 are open for presentation/lab traffic." -ForegroundColor Yellow
@@ -60,7 +58,8 @@ function Remove-PredatorFirewallRules {
 }
 
 function Show-PredatorFirewallStatus {
-    Write-Host "`n=== PREDATOR System 1 Active Firewall Rules ===" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "=== PREDATOR System 1 Active Firewall Rules ===" -ForegroundColor Cyan
     foreach ($rule in $WhitelistedPorts) {
         $existing = Get-NetFirewallRule -DisplayName $rule.Name -ErrorAction SilentlyContinue
         if ($existing) {
@@ -69,11 +68,12 @@ function Show-PredatorFirewallStatus {
             Write-Host "  [MISSING] Port $($rule.Port) - $($rule.Name)" -ForegroundColor Red
         }
     }
-    Write-Host "`nUse: powershell -ExecutionPolicy Bypass -File firewall_rules.ps1 -Action apply" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "Use: powershell -ExecutionPolicy Bypass -File firewall_rules.ps1 -Action apply" -ForegroundColor Gray
 }
 
 switch ($Action) {
-    "apply"  { Apply-PredatorFirewallRules }
-    "remove" { Remove-PredatorFirewallRules }
-    "status" { Show-PredatorFirewallStatus }
+    'apply'  { Apply-PredatorFirewallRules }
+    'remove' { Remove-PredatorFirewallRules }
+    'status' { Show-PredatorFirewallStatus }
 }
