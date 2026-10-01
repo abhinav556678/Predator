@@ -1,28 +1,21 @@
-from fastapi import APIRouter
-from .. import schemas
-from datetime import datetime, timezone
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from .. import schemas, models, database
 
 router = APIRouter()
 
-MOCK_INCIDENTS = [
-    {
-        "id": "INC-001",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "stage": "CREDENTIAL ACCESS",
-        "risk_level": "HIGH",
-        "endpoint": "EMPLOYEE-03",
-        "description": "Suspicious login followed by credential directory access."
-    },
-    {
-        "id": "INC-002",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "stage": "DISCOVERY",
-        "risk_level": "MEDIUM",
-        "endpoint": "SERVER-01",
-        "description": "Unusual internal scanning behavior detected."
-    }
-]
-
 @router.get("/incidents")
-def get_incidents():
-    return MOCK_INCIDENTS
+def get_incidents(db: Session = Depends(database.get_db)):
+    incidents = db.query(models.Incident).order_by(models.Incident.timestamp.desc()).all()
+    # Format them cleanly for the frontend
+    result = []
+    for inc in incidents:
+        result.append({
+            "id": inc.id,
+            "timestamp": inc.timestamp.isoformat() if inc.timestamp else None,
+            "stage": inc.stage,
+            "risk_level": inc.risk_level,
+            "endpoint": inc.endpoint,
+            "description": inc.description
+        })
+    return result

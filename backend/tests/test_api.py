@@ -17,5 +17,17 @@ def test_get_incidents():
     response = client.get("/incidents")
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 2
-    assert data[0]["id"] == "INC-001"
+    assert isinstance(data, list)
+
+def test_behavior_engine_triggers_incident():
+    # Send 5 events quickly from a single IP
+    for _ in range(5):
+        client.post("/events", json={"source_ip": "10.0.0.99", "event_type": "TEST"})
+    
+    # Check incidents
+    response = client.get("/incidents")
+    data = response.json()
+    
+    # We should have at least one incident created for 10.0.0.99
+    found = any(inc["endpoint"] == "10.0.0.99" for inc in data)
+    assert found
