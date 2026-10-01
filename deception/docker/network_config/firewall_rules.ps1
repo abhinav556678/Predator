@@ -46,6 +46,17 @@ function Apply-PredatorFirewallRules {
         Write-Host "    [✓] Allowed Inbound Port $($rule.Port) ($($rule.Name))" -ForegroundColor Green
     }
 
+    # Allow ICMP Echo Request for diagnostic pings
+    Remove-NetFirewallRule -DisplayName "PREDATOR-Allow-ICMP-Echo" -ErrorAction SilentlyContinue
+    New-NetFirewallRule -DisplayName "PREDATOR-Allow-ICMP-Echo" `
+                        -Direction Inbound `
+                        -Action Allow `
+                        -Protocol ICMPv4 `
+                        -IcmpType 8 `
+                        -Profile Any `
+                        -Description "PREDATOR Diagnostic ICMP Echo Request" | Out-Null
+    Write-Host "    [✓] Allowed Inbound ICMP Echo Request" -ForegroundColor Green
+
     Write-Host "[+] System 1 Firewall Hardening applied successfully." -ForegroundColor Green
     Write-Host "    Only ports 3000, 8000, 8080, and 9000 are open for presentation/lab traffic." -ForegroundColor Yellow
 }
