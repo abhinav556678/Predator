@@ -19,3 +19,14 @@ def test_get_incidents():
     data = response.json()
     assert len(data) == 2
     assert data[0]["id"] == "INC-001"
+
+def test_get_incidents_cors():
+    response = client.options(
+        "/incidents",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "GET"
+        }
+    )
+    assert response.status_code == 200
+    assert response.headers.get("access-control-allow-origin") in ["*", "http://localhost:5173"]
