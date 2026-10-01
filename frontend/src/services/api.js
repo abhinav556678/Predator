@@ -32,6 +32,15 @@ export function setApiBaseUrl(url) {
 }
 
 /**
+ * Returns the WebSocket URL for the M3 Backend.
+ */
+export function getWebSocketUrl() {
+  const baseUrl = getApiBaseUrl();
+  // Convert http/https to ws/wss
+  return baseUrl.replace(/^http/, 'ws') + '/ws/incidents';
+}
+
+/**
  * Resets the backend URL to the default build-time environment configuration.
  */
 export function resetApiBaseUrl() {

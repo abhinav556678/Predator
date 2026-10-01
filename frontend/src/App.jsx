@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { fetchIncidents, getApiBaseUrl } from './services/api'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { fetchIncidents, getApiBaseUrl, getWebSocketUrl } from './services/api'
 import IncidentCard from './components/IncidentCard'
 import Timeline from './components/Timeline'
 import BackendConfigModal from './components/BackendConfigModal'
@@ -19,11 +19,14 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [lastUpdated, setLastUpdated] = useState(null)
-  const [autoRefresh, setAutoRefresh] = useState(true)
   const [backendUrl, setBackendUrl] = useState(getApiBaseUrl())
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false)
+  
+  // WebSocket State
+  const [wsStatus, setWsStatus] = useState('CONNECTING')
+  const wsRef = useRef(null)
 
-  // Fetch incidents from M3 Backend
+  // Fetch incidents from M3 Backend (initial load or manual sync)
   const loadIncidents = useCallback(async (isManual = false) => {
     if (isManual) setLoading(true)
     setError(null)
@@ -39,18 +42,62 @@ export default function App() {
     }
   }, [])
 
-  // Initial load and periodic polling
+  // Initial load
   useEffect(() => {
     loadIncidents(true)
+  }, [loadIncidents, backendUrl])
 
-    if (!autoRefresh) return
-
-    const intervalId = setInterval(() => {
-      loadIncidents(false)
-    }, 6000)
-
-    return () => clearInterval(intervalId)
-  }, [loadIncidents, autoRefresh, backendUrl])
+  // WebSocket Connection Management
+  useEffect(() => {
+    let reconnectTimer;
+    
+    const connectWs = () => {
+      setWsStatus('CONNECTING')
+      const wsUrl = getWebSocketUrl()
+      const ws = new WebSocket(wsUrl)
+      
+      ws.onopen = () => {
+        setWsStatus('CONNECTED')
+      }
+      
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data)
+          if (message.type === 'NEW_INCIDENT' && message.data) {
+            setIncidents(prev => {
+              // Avoid duplicates if same ID comes in
+              if (prev.some(i => i.id === message.data.id)) return prev
+              return [message.data, ...prev]
+            })
+            setLastUpdated(new Date())
+          }
+        } catch (e) {
+          console.error("Failed to parse WS message", e)
+        }
+      }
+      
+      ws.onclose = () => {
+        setWsStatus('DISCONNECTED')
+        reconnectTimer = setTimeout(connectWs, 3000)
+      }
+      
+      ws.onerror = () => {
+        // ws.onclose will fire after error
+        ws.close()
+      }
+      
+      wsRef.current = ws
+    }
+    
+    connectWs()
+    
+    return () => {
+      clearTimeout(reconnectTimer)
+      if (wsRef.current) {
+        wsRef.current.close()
+      }
+    }
+  }, [backendUrl])
 
   // Computed metrics
   const activeCount = incidents.length
@@ -172,17 +219,18 @@ export default function App() {
               </svg>
             </button>
 
-            <button
-              type="button"
-              onClick={() => setAutoRefresh((prev) => !prev)}
-              className={`px-2.5 py-1 text-[11px] font-medium rounded-lg border transition cursor-pointer ${
-                autoRefresh
-                  ? 'bg-cyan-950/40 border-cyan-800/60 text-cyan-300'
-                  : 'bg-slate-800 border-slate-700 text-slate-400'
+            <div
+              className={`px-2.5 py-1 text-[11px] font-medium rounded-lg border flex items-center gap-1.5 ${
+                wsStatus === 'CONNECTED'
+                  ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-400'
+                  : wsStatus === 'CONNECTING'
+                  ? 'bg-amber-950/40 border-amber-800/60 text-amber-400'
+                  : 'bg-rose-950/40 border-rose-800/60 text-rose-400'
               }`}
             >
-              {autoRefresh ? 'Auto 6s' : 'Paused'}
-            </button>
+              <span className={`w-1.5 h-1.5 rounded-full ${wsStatus === 'CONNECTED' ? 'bg-emerald-400 animate-pulse' : wsStatus === 'CONNECTING' ? 'bg-amber-400 animate-pulse' : 'bg-rose-400'}`} />
+              {wsStatus === 'CONNECTED' ? 'Live WS' : wsStatus === 'CONNECTING' ? 'Connecting...' : 'WS Offline'}
+            </div>
           </div>
         </div>
       </header>
