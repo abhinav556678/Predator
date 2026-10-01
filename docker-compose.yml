@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # =========================================================================
+  # M4 — Deception Honeypot Environment
+  # Ticket 02 & 11: Isolated Deception Container
+  # =========================================================================
+  deception:
+    build:
+      context: .
+      dockerfile: deception/docker/Dockerfile
+    container_name: predator_deception
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "9000:9000"
+    environment:
+      - DECEPTION_HOST=0.0.0.0
+      - DECEPTION_PORT=8080
+      - DECEPTION_SECONDARY_PORT=9000
+      - M3_BACKEND_URL=${M3_BACKEND_URL:-http://host.docker.internal:8000/events}
+      - ENABLE_WEBHOOK=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - predator_deception_net
+    volumes:
+      - deception_data:/app/deception/fake_database
+      - deception_logs:/app/deception/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+networks:
+  predator_deception_net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "false" # Inter-container communication disabled for isolation
+      com.docker.network.bridge.name: "br_pred_dec"
+
+volumes:
+  deception_data:
+  deception_logs:

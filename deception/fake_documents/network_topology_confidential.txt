@@ -1,0 +1,25 @@
+========================================================================
+APEX GLOBAL FINANCIAL - INTERNAL NETWORK TOPOLOGY SPECIFICATION (2026)
+RESTRICTED ACCESS - LEVEL 4 CLEARANCE ONLY
+========================================================================
+
+1. MANAGEMENT & AD ZONE:
+   - 10.240.0.10: dc-primary.corp.apex (Windows Server 2022 AD/Kerberos)
+   - 10.240.0.11: dc-backup.corp.apex (AD Replica)
+
+2. CORE FINANCIAL SUBNET (VLAN 100):
+   - 10.240.0.15: db-finance-master.corp.apex (PostgreSQL 16 Cluster, Port 5432)
+   - 10.240.0.16: db-finance-replica.corp.apex (Read-Only Mirror)
+   - 10.240.0.22: cache-fin.corp.apex (Redis Enterprise, Port 6379)
+
+3. DEMILITARIZED ZONE (DMZ / INGRESS):
+   - 10.240.1.20: k8s-ingress-prod.corp.apex (NGINX Gateway, Ports 80, 443, 8080)
+   - 10.240.1.25: payment-gateway-live.corp.apex (Swift/ACH Interface)
+
+4. SECURE VAULT ZONE (VLAN 300 - AIRGAPPED VIA FIREWALL):
+   - 10.240.2.5: vault-secrets.corp.apex (HashiCorp Vault, Port 8200)
+   - 10.240.2.10: cold-backup-storage.corp.apex (Encrypted LTO Tape Bridge)
+
+FIREWALL POLICY RULES:
+- All traffic from DMZ to VLAN 100 is strictly rate-limited and inspected.
+- Direct root SSH access is blocked; jumpbox bastion at 10.240.1.5 required.
